@@ -49,7 +49,7 @@ async def addView(request_data: viewRequest):
 	return {"message", "You aren't botting my blog with views like a weirdo right?"}
 
 @dev.get("/getTitlesAndDates")
-async def getTitles(request_data: authenticated) -> dict[str, str]:
+async def getTitles(request_data: authenticated):
 	"returns titles and dates. returns unpublished ones if password is provided"
 	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
@@ -62,7 +62,7 @@ async def getTitles(request_data: authenticated) -> dict[str, str]:
 	return {"message" : titles}
 
 @dev.get("/getContent")
-async def getContent(request_data: getContent) -> dict[str, str]:
+async def getContent(request_data: getContent):
 	thoughtTitle = request_data.thoughtTitle
 	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
