@@ -1,6 +1,7 @@
 from datetime import datetime
 import hashlib
 import sqlite3
+import argon2
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 
@@ -8,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 
 dev = FastAPI(docs_url="/dev",title="JCMS.DEV Blog API")
 
-pw_hash = "4c89c529b03f948ec45af1d7edc3680b"
+pw_hash = "$argon2id$v=19$m=65536,t=3,p=4$sBUYFeFHfc+dpxM16gq8/Q$Tee+FYybVAb8iIbXVFoZA3eEnPJJIVNOEGyfnkp5vM8"
 
 class addThoughtRequest(BaseModel): 
 	pw             : str # Authentication
@@ -134,7 +135,9 @@ async def deadLink(path: str):
 # ---
 
 def getHashedPw(pw) -> str:
-	return hashlib.md5(str(pw).encode("utf-8")).hexdigest() 
+    hash_generator = argon2.PasswordHasher()
+    hashed_password = hash_generator.hash(pw)
+    return hashed_password
 
 def setupDB() -> None:
 	db,c = getDBandC()
@@ -163,4 +166,5 @@ class thoughtIs:
 	private  = 0
 
 if __name__ == "__main__":
-	setupDB()
+	print(getHashedPw("9m2UgTiaajudjuZO"))
+	# setupDB()
