@@ -69,9 +69,9 @@ async def getThought(request_data: getThought):
 	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
 	if pw is None:
-		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID from Thoughts WHERE thoughtTitle = ? and published = ?", (thoughtTitle,thoughtIs.public,))
+		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID,views from Thoughts WHERE thoughtTitle = ? and published = ?", (thoughtTitle,isPublished.yes,))
 	else:
-		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID from Thoughts WHERE thoughtTitle = ?", (thoughtTitle,))
+		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID,views from Thoughts WHERE thoughtTitle = ?", (thoughtTitle,))
 	rawData = c.fetchone()
 	if rawData is None:
 		db.close()
@@ -81,7 +81,8 @@ async def getThought(request_data: getThought):
 		"thoughtContent": rawData[1],	
 		"thoughtCSS": rawData[2],	
 		"creationDate": rawData[3],	
-		"thoughtID": rawData[4],	
+		"thoughtID": rawData[4],
+		"views": rawData[5],
 		})
 	}
 	db.close()
