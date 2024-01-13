@@ -4,16 +4,18 @@ import sqlite3
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 
+# uvicorn jcms:dev --port 6969 --reload --no-server-header --no-date-header
+
 dev = FastAPI(docs_url="/dev",title="JCMS.DEV Blog API")
 
-pw_hash = "d69457b93bc60b8b5e7dd7e8dc6bff6d"
+pw_hash = "4c89c529b03f948ec45af1d7edc3680b"
 
 class addThoughtRequest(BaseModel): 
 	pw             : str # Authentication
 	thoughtTitle   : str # Thought Title
 	thoughtContent : str # Thought Text
 	thoughtCSS     : str # CSS File to generate
-	published      : int # if it should be returned for /getContent currently
+	published      : int # if it should be returned for /getThought currently
 
 class editThoughtRequest(BaseModel): 
 	pw             : str # Authentication
@@ -21,9 +23,9 @@ class editThoughtRequest(BaseModel):
 	thoughtTitle   : str # Thought Title
 	thoughtContent : str # Thought Text
 	thoughtCSS     : str # CSS File to generate
-	published      : int # if it should be returned for /getContent currently
+	published      : int # if it should be returned for /getThought currently
 
-class getContent(BaseModel):
+class getThought(BaseModel):
 	pw             : str # Authentication
 	thoughtTitle   : str 
 
@@ -49,25 +51,25 @@ async def addView(request_data: viewRequest):
 	return {"message", "You aren't botting my blog with views like a weirdo right?"}
 
 @dev.get("/getTitlesAndDates")
-async def getTitles(request_data: authenticated) -> dict[str, str]:
+async def getTitles(request_data: authenticated):
 	"returns titles and dates. returns unpublished ones if password is provided"
 	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
 	if pw is None:
-		c.execute("SELECT thoughtTitle,creationDate from Thoughts WHERE published = ?", (isPublished.yes,))
+		c.execute("SELECT thoughtTitle,creationDate from Thoughts WHERE published = ?", (thoughtIs.public,))
 	else:
 		c.execute("SELECT thoughtTitle,creationDate from Thoughts")
-	titles = str([title for title in c.fetchall()])
+	titles = str([thought for thought in c.fetchall()])
 	db.close()
 	return {"message" : titles}
 
-@dev.get("/getContent")
-async def getContent(request_data: getContent) -> dict[str, str]:
+@dev.get("/getThought")
+async def getThought(request_data: getThought):
 	thoughtTitle = request_data.thoughtTitle
 	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
 	if pw is None:
-		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID from Thoughts WHERE thoughtTitle = ? and published = ?", (thoughtTitle,isPublished.yes,))
+		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID from Thoughts WHERE thoughtTitle = ? and published = ?", (thoughtTitle,thoughtIs.public,))
 	else:
 		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID from Thoughts WHERE thoughtTitle = ?", (thoughtTitle,))
 	rawData = c.fetchone()
@@ -155,9 +157,9 @@ def getDBandC():
 def getTimestamp() -> int:
 	return int(datetime.now().timestamp())
 
-class isPublished: 
-	yes = 1
-	no  = 0
+class thoughtIs: 
+	public = 1
+	private  = 0
 
 if __name__ == "__main__":
 	setupDB()
