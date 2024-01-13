@@ -1,7 +1,7 @@
+import binascii
 from datetime import datetime
 import hashlib
 import sqlite3
-import argon2
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 
@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 
 dev = FastAPI(docs_url="/dev",title="JCMS.DEV Blog API")
 
-pw_hash = "$argon2id$v=19$m=65536,t=3,p=4$sBUYFeFHfc+dpxM16gq8/Q$Tee+FYybVAb8iIbXVFoZA3eEnPJJIVNOEGyfnkp5vM8"
+pw_hash = "c61bdc601e7175ec1429fafd69763737d283a40b114ec68c815cf7a1a4149e8774d0cc99f3a511cb421a8889779baca56c21c25c28874f2584d5717d7379cf6f"
 
 class addThoughtRequest(BaseModel): 
 	pw             : str # Authentication
@@ -135,9 +135,10 @@ async def deadLink(path: str):
 # ---
 
 def getHashedPw(pw) -> str:
-    hash_generator = argon2.PasswordHasher()
-    hashed_password = hash_generator.hash(pw)
-    return hashed_password
+	iterations = 100000  # Adjust the number of iterations based on your security requirements
+	key_length = 64  # Adjust the key length based on your needs
+	hashed_password = hashlib.pbkdf2_hmac('sha256', pw.encode('utf-8'), b'YOUAREALOOSERGETOUT', iterations, key_length)
+	return binascii.hexlify(hashed_password).decode('utf-8')
 
 def setupDB() -> None:
 	db,c = getDBandC()
