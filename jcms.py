@@ -167,5 +167,4 @@ class thoughtIs:
 	private  = 0
 
 if __name__ == "__main__":
-	print(getHashedPw("9m2UgTiaajudjuZO"))
-	# setupDB()
+	setupDB()
