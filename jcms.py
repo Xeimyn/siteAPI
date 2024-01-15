@@ -42,7 +42,7 @@ class viewRequest(BaseModel):
 async def auth(request_data: authenticated):
 	return bcrypt.checkpw(str(request_data.pw).encode("utf-8"),pw_hash)
 
-@dev.post("/addView")
+@dev.get("/addView")
 async def addView(request_data: viewRequest):
 	t_id = int(request_data.thoughtID)
 	db,c = getDBandC()
@@ -57,7 +57,7 @@ async def addView(request_data: viewRequest):
 	db.close()
 	return {"message", "You aren't botting my blog with views like a weirdo right?"}
 
-@dev.get("/getTitlesAndDates")
+@dev.post("/getTitlesAndDates")
 async def getTitles(request_data: authenticated):
 	"returns titles and dates. returns unpublished ones if password is provided"
 	db,c = getDBandC()
@@ -69,7 +69,7 @@ async def getTitles(request_data: authenticated):
 	db.close()
 	return {"message" : titles}
 
-@dev.get("/getThought")
+@dev.post("/getThought")
 async def getThoughtRequest(request_data: getThoughtRequest):
 	thoughtTitle = request_data.thoughtTitle
 	db,c = getDBandC()
