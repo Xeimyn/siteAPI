@@ -1,22 +1,22 @@
-import binascii
 from datetime import datetime
-import hashlib
 import sqlite3
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
+import bcrypt
 
-# uvicorn jcms:dev --port 6969 --reload --no-server-header --no-date-header
+# uvicorn jcms:dev --host 0.0.0.0 --port 80 --reload --no-server-header --no-date-header
 
-dev = FastAPI(docs_url="/dev",title="JCMS.DEV Blog API")
+dev = FastAPI(docs_url="/dev",title="JCMS.DEV Thoughts API",contact="JCMS on Discord",)
+pw_hash = b'$2b$12$MJzi3icY0zCsnU8KSOYIh.32fvNoiFXsIa5lHPiw8M3RHBPM.mK.G'
 
-pw_hash = "c61bdc601e7175ec1429fafd69763737d283a40b114ec68c815cf7a1a4149e8774d0cc99f3a511cb421a8889779baca56c21c25c28874f2584d5717d7379cf6f"
+# ---
 
 class addThoughtRequest(BaseModel): 
 	pw             : str # Authentication
 	thoughtTitle   : str # Thought Title
 	thoughtContent : str # Thought Text
 	thoughtCSS     : str # CSS File to generate
-	published      : int # if it should be returned for /getThought currently
+	published      : int # if it should be returned for /getThought currently (without valid auth)
 
 class editThoughtRequest(BaseModel): 
 	pw             : str # Authentication
@@ -26,7 +26,7 @@ class editThoughtRequest(BaseModel):
 	thoughtCSS     : str # CSS File to generate
 	published      : int # if it should be returned for /getThought currently
 
-class getThought(BaseModel):
+class getThoughtRequest(BaseModel):
 	pw             : str # Authentication
 	thoughtTitle   : str 
 
@@ -35,6 +35,12 @@ class authenticated(BaseModel):
 
 class viewRequest(BaseModel):
 	thoughtID      : int
+
+# ---
+
+@dev.post("/auth")
+async def auth(request_data: authenticated):
+	return bcrypt.checkpw(str(request_data.pw).encode("utf-8"),pw_hash)
 
 @dev.post("/addView")
 async def addView(request_data: viewRequest):
@@ -65,12 +71,12 @@ async def getTitles(request_data: authenticated):
 	return {"message" : titles}
 
 @dev.get("/getThought")
-async def getThought(request_data: getThought):
+async def getThoughtRequest(request_data: getThoughtRequest):
 	thoughtTitle = request_data.thoughtTitle
 	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
 	if pw is None:
-		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID,views from Thoughts WHERE thoughtTitle = ? and published = ?", (thoughtTitle,isPublished.yes,))
+		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID,views from Thoughts WHERE thoughtTitle = ? and published = ?", (thoughtTitle,thoughtIs.public,))
 	else:
 		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID,views from Thoughts WHERE thoughtTitle = ?", (thoughtTitle,))
 	rawData = c.fetchone()
@@ -132,13 +138,15 @@ async def editThought(request_data: editThoughtRequest):
 async def deadLink(path: str):
 	raise HTTPException(status_code=404, detail="Hippity Hoppity get off my Endpointitiy... yeah thats was bad im sorry")
 
+@dev.get("/") 
+async def emptyLink():
+	raise HTTPException(status_code=404, detail="Hippity Hoppity get off my Endpointitiy... yeah thats was bad im sorry")
+
 # ---
 
-def getHashedPw(pw) -> str:
-	iterations = 100000  # Adjust the number of iterations based on your security requirements
-	key_length = 64  # Adjust the key length based on your needs
-	hashed_password = hashlib.pbkdf2_hmac('sha256', pw.encode('utf-8'), b'YOUAREALOOSERGETOUT', iterations, key_length)
-	return binascii.hexlify(hashed_password).decode('utf-8')
+def getHashedPw(pw:str) -> str:
+	hpw = bcrypt.hashpw(pw.encode("utf-8"),bcrypt.gensalt())
+	return hpw 
 
 def setupDB() -> None:
 	db,c = getDBandC()
@@ -167,5 +175,4 @@ class thoughtIs:
 	private  = 0
 
 if __name__ == "__main__":
-	print(getHashedPw("9m2UgTiaajudjuZO"))
-	# setupDB()
+	setupDB()
