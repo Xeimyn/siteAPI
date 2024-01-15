@@ -60,9 +60,8 @@ async def addView(request_data: viewRequest):
 @dev.get("/getTitlesAndDates")
 async def getTitles(request_data: authenticated):
 	"returns titles and dates. returns unpublished ones if password is provided"
-	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
-	if pw is None:
+	if not bcrypt.checkpw(str(request_data.pw).encode("utf-8"),pw_hash):
 		c.execute("SELECT thoughtTitle,creationDate from Thoughts WHERE published = ?", (thoughtIs.public,))
 	else:
 		c.execute("SELECT thoughtTitle,creationDate from Thoughts")
@@ -73,9 +72,8 @@ async def getTitles(request_data: authenticated):
 @dev.get("/getThought")
 async def getThoughtRequest(request_data: getThoughtRequest):
 	thoughtTitle = request_data.thoughtTitle
-	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
 	db,c = getDBandC()
-	if pw is None:
+	if not bcrypt.checkpw(str(request_data.pw).encode("utf-8"),pw_hash):
 		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID,views from Thoughts WHERE thoughtTitle = ? and published = ?", (thoughtTitle,thoughtIs.public,))
 	else:
 		c.execute("SELECT thoughtTitle,thoughtContent,thoughtCSS,creationDate,thoughtID,views from Thoughts WHERE thoughtTitle = ?", (thoughtTitle,))
@@ -97,8 +95,7 @@ async def getThoughtRequest(request_data: getThoughtRequest):
 
 @dev.post("/addThought")
 async def addThought(request_data: addThoughtRequest):
-	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
-	if pw is None:
+	if not bcrypt.checkpw(str(request_data.pw).encode("utf-8"),pw_hash):
 		return {"message" : "Stwop twying pwease. (^3^)"}
 	thoughtTitle   = str(request_data.thoughtTitle)
 	thoughtContent = str(request_data.thoughtContent)
@@ -118,8 +115,7 @@ async def addThought(request_data: addThoughtRequest):
 
 @dev.post("/editThought")
 async def editThought(request_data: editThoughtRequest):
-	pw = None if getHashedPw(request_data.pw) != pw_hash else "authenticated"
-	if pw is None:
+	if not bcrypt.checkpw(str(request_data.pw).encode("utf-8"),pw_hash):
 		return {"message" : "Stwop twying pwease. (^3^)"}
 	thoughtID      = int(request_data.thoughtID)
 	thoughtTitle   = str(request_data.thoughtTitle)
@@ -143,10 +139,6 @@ async def emptyLink():
 	raise HTTPException(status_code=404, detail="Hippity Hoppity get off my Endpointitiy... yeah thats was bad im sorry")
 
 # ---
-
-def getHashedPw(pw:str) -> str:
-	hpw = bcrypt.hashpw(pw.encode("utf-8"),bcrypt.gensalt())
-	return hpw 
 
 def setupDB() -> None:
 	db,c = getDBandC()
