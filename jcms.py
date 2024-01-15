@@ -6,7 +6,7 @@ import bcrypt
 
 # uvicorn jcms:dev --host 0.0.0.0 --port 80 --reload --no-server-header --no-date-header 
 
-dev = FastAPI(docs_url="/dev",title="JCMS.DEV Thoughts API",contact="JCMS on Discord",)
+dev = FastAPI(docs_url="/dev",title="JCMS.DEV Thoughts API",)
 pw_hash = b'$2b$12$MJzi3icY0zCsnU8KSOYIh.32fvNoiFXsIa5lHPiw8M3RHBPM.mK.G'
 
 # ---
