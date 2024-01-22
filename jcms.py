@@ -11,7 +11,7 @@ dev = FastAPI(docs_url="/dev",title="JCMS.DEV Thoughts API",)
 # Allow all origins in development. You might want to restrict this in production.
 origins = ["*"]
 
-app.add_middleware(
+dev.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
