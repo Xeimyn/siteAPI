@@ -2,6 +2,7 @@ from datetime import datetime
 import sqlite3
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import bcrypt
 
 # uvicorn jcms:dev --host 0.0.0.0 --port 80 --reload --no-server-header --no-date-header 
