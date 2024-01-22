@@ -7,6 +7,18 @@ import bcrypt
 # uvicorn jcms:dev --host 0.0.0.0 --port 80 --reload --no-server-header --no-date-header 
 
 dev = FastAPI(docs_url="/dev",title="JCMS.DEV Thoughts API",)
+
+# Allow all origins in development. You might want to restrict this in production.
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 pw_hash = b'$2b$12$MJzi3icY0zCsnU8KSOYIh.32fvNoiFXsIa5lHPiw8M3RHBPM.mK.G'
 
 # ---
