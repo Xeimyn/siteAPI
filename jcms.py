@@ -7,7 +7,7 @@ import bcrypt
 
 # uvicorn jcms:dev --host 0.0.0.0 --port 80 --reload --no-server-header --no-date-header 
 
-dev = FastAPI(docs_url="/dev",title="JCMS.DEV Thoughts API",version="2.0.0")
+dev = FastAPI(docs_url="/dev",title="JCMS.DEV Thoughts API",version="2.0.1")
 
 # Allow all origins in development. You might want to restrict this in production.
 origins = ["*"]
@@ -149,15 +149,15 @@ async def deleteThought(request_data: authenticatedID):
 
 # ---
 
-@dev.get("/{path}") 
+@dev.get("/{path}", include_in_schema=False) 
 async def deadLinkGet(path: str):
 	raise HTTPException(status_code=404, detail="Oh d-deweaw, it seems wike you've stumbled upon the elusive 404 tewwitowy, where the endpoints awe as scawce as a needle in a digital haystack (>///<). Awas, the endpoint you seek is pwaying hide-and-seek, perhaps engaged in a spirited game of 'Where in the Wowwd Wide Web is Cawmen Sandiego?' (*≧ω≦). Fweaw not, intwepid adventuwew, fow in the vast expanse of cyberspace, not evewy UWW is destined to be discuvwed. So, take a moment to appweciate the sewendipity of this encountew, and wemembew, the jouwney is often mowe entewtaining than the destination (*´꒳`*). If you're feeling pawticulawwy adventuwous, you may twy anothew path in the wabwyinth of UWWs or consuwt the ancient scwowls known as API documentation. Happy questing, and may youw HTTP wequests be evew in youw favow! (*^▽^*)")
 
-@dev.post("/{path}") 
+@dev.post("/{path}", include_in_schema=False) 
 async def deadLinkPost(path: str):
 	raise HTTPException(status_code=404, detail="Oh d-deweaw, it seems wike you've stumbled upon the elusive 404 tewwitowy, where the endpoints awe as scawce as a needle in a digital haystack (>///<). Awas, the endpoint you seek is pwaying hide-and-seek, perhaps engaged in a spirited game of 'Where in the Wowwd Wide Web is Cawmen Sandiego?' (*≧ω≦). Fweaw not, intwepid adventuwew, fow in the vast expanse of cyberspace, not evewy UWW is destined to be discuvwed. So, take a moment to appweciate the sewendipity of this encountew, and wemembew, the jouwney is often mowe entewtaining than the destination (*´꒳`*). If you're feeling pawticulawwy adventuwous, you may twy anothew path in the wabwyinth of UWWs or consuwt the ancient scwowls known as API documentation. Happy questing, and may youw HTTP wequests be evew in youw favow! (*^▽^*)")
 
-@dev.get("/") 
+@dev.get("/", include_in_schema=False) 
 async def emptyLink():
 	raise HTTPException(status_code=404, detail="Oh d-deweaw, it seems wike you've stumbled upon the elusive 404 tewwitowy, where the endpoints awe as scawce as a needle in a digital haystack (>///<). Awas, the endpoint you seek is pwaying hide-and-seek, perhaps engaged in a spirited game of 'Where in the Wowwd Wide Web is Cawmen Sandiego?' (*≧ω≦). Fweaw not, intwepid adventuwew, fow in the vast expanse of cyberspace, not evewy UWW is destined to be discuvwed. So, take a moment to appweciate the sewendipity of this encountew, and wemembew, the jouwney is often mowe entewtaining than the destination (*´꒳`*). If you're feeling pawticulawwy adventuwous, you may twy anothew path in the wabwyinth of UWWs or consuwt the ancient scwowls known as API documentation. Happy questing, and may youw HTTP wequests be evew in youw favow! (*^▽^*)")
 
