@@ -61,8 +61,9 @@ class Database:
 
 	def getThoughtIdByTitle(self,title):
 		with Session(self.engine) as session:
-			thoughtId = session.exec(select(Thought).where(Thought.title == title)).first().thoughtId
-		return thoughtId
+			thought = session.exec(select(Thought).where(Thought.title == title)).first()
+			print(thought)
+		return thought.thoughtId
 
 	def getThoughtContent(self,thoughtId):
 		thought = self._getThoughtById(thoughtId)

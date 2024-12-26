@@ -1,33 +1,26 @@
+from typing import Annotated
 from src.database.Database import Database
-import fastapi
+from fastapi import FastAPI,Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import hashlib
 
-if __name__ == "__main__":
-	db = Database()
-	db.addThought("Test (public)","public thought","blablabla","some styling",public=True)
-	db.addThought("Test (private)","private thought","blablabla","some styling",public=False)
-	print("-- Added 2 thought")
-	print(db.getAllThoughts(includeUnpublished=True))
-	print(db.getAllThoughts(includeUnpublished=False))
-	input()
-	db.editThought(db.getThoughtIdByTitle("Test (public)"),description="public thought (edited)")
-	print("-- Edited description of thought")
-	print(db.getAllThoughts(includeUnpublished=True))
-	print(db.getAllThoughts(includeUnpublished=False))
-	input()
-	print("-- Get Thought by title")
-	print(db.getThoughtContent(db.getThoughtIdByTitle("Test (public)")))
-	input()
-	db.privateThought(db.getThoughtIdByTitle("Test (public)"))
-	print("-- privated public thought")
-	print(db.getAllThoughts(includeUnpublished=True))
-	print(db.getAllThoughts(includeUnpublished=False))
-	input()
-	db.publishThought(db.getThoughtIdByTitle("Test (private)"))
-	print("-- published private thought")
-	print(db.getAllThoughts(includeUnpublished=True))
-	print(db.getAllThoughts(includeUnpublished=False))
-	input()
-	db.deleteThought(db.getThoughtIdByTitle("Test (public)"))
-	print("-- delete public thought")
-	print(db.getAllThoughts(includeUnpublished=True))
-	print(db.getAllThoughts(includeUnpublished=False))
+app = FastAPI()
+security = HTTPBasic()
+db = Database()
+
+@app.get("/thoughts")
+def getAllThought():
+	return db.getAllThoughts()
+
+@app.get("/thought/{thoughtTitle}")
+def getThoughtContent(thoughtTitle):
+	tId = db.getThoughtIdByTitle(thoughtTitle)
+	return db.getThoughtContent(tId)
+
+# TODO | Authenticated endpoints
+@app.get("/all")
+def returnSecret(credentials: Annotated[HTTPBasicCredentials, Depends(security)]):
+	if credentials.username == "Simon":
+		return "ur allowed"
+	else:
+		return "ur not allowed"
