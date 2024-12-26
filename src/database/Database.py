@@ -7,12 +7,13 @@ class Database:
 		self.engine:Engine = create_engine("sqlite:///data//thoughts.db")
 		SQLModel.metadata.create_all(self.engine)
 
-	def addThought(self,title,description,html,css=None) -> None:
+	def addThought(self,title,description,html,css=None,public=False) -> None:
 		newThought = Thought(
 				title=title,
 				description=description,
 				htmlContent=html,
-				cssContent=css)
+				cssContent=css,
+				public=public)
 		with Session(self.engine) as session:
 			session.add(instance=newThought)
 			session.commit()
@@ -26,23 +27,28 @@ class Database:
 	def editThought(self,thoughtId,title=None,description=None,html=None,css=None) -> None:
 		with Session(self.engine) as session:
 			thought:Thought | None = self._getThoughtById(thoughtId)
+			session.delete(thought)
 			thought.title = title if title is not None else thought.title
 			thought.description = description if description is not None else thought.description
-			thought.html = html if html is not None else thought.html
-			thought.css = css if css is not None else thought.css
-			# TODO | Not sure if i only have to commit the session after editing the thought
+			thought.htmlContent = html if html is not None else thought.htmlContent
+			thought.cssContent = css if css is not None else thought.cssContent
+			session.add(thought)
 			session.commit()
 
 	def publishThought(self,thoughtId) -> None:
 		with Session(self.engine) as session:
 			thought:Thought | None = self._getThoughtById(thoughtId)
+			session.delete(thought)
 			thought.public = True
+			session.add(thought)
 			session.commit()
 
 	def privateThought(self,thoughtId) -> None:
 		with Session(self.engine) as session:
 			thought = self._getThoughtById(thoughtId)
+			session.delete(thought)
 			thought.public = False
+			session.add(thought)
 			session.commit()
 
 	def getAllThoughts(self,includeUnpublished=False):
@@ -60,7 +66,7 @@ class Database:
 
 	def getThoughtContent(self,thoughtId):
 		thought = self._getThoughtById(thoughtId)
-		return [thought.title,thought.description,thought.html,thought.css,thought.createdAt,thought.updatedAt]
+		return [thought.title,thought.description,thought.htmlContent,thought.cssContent,thought.createdAt,thought.updatedAt]
 
 	def _getThoughtById(self,thoughtId):
 		with Session(self.engine) as session:
